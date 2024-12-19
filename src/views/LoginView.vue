@@ -1,16 +1,18 @@
 <template>
   <div class="main-container">
-    <Home />
+    <Login />
   </div>
 </template>
 
 <script>
-import Home from '../components/HomePage.vue'
+import Login from '../components/LoginPage.vue'
 
 export default {
-  name: 'HomeView',
+  name: 'LoginView',
   components: {
-    Home,
+    Login,
   },
 }
 </script>
+
+<style scoped></style>
