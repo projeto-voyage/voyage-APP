@@ -8,26 +8,36 @@
       <form @submit.prevent="handleSubmit" class="login-form">
         <div class="form-group">
           <label for="email">Email</label>
-          <input
-            type="email"
-            id="email"
-            v-model="email"
-            required
-            placeholder="Digite seu e-mail"
-            class="form-input"
-          />
+          <div class="input-container">
+            <i class="fas fa-at input-icon"></i>
+            <input
+              type="email"
+              id="email"
+              v-model="email"
+              required
+              placeholder="Digite seu e-mail"
+              class="form-input"
+            />
+          </div>
         </div>
 
         <div class="form-group">
           <label for="password">Senha</label>
-          <input
-            type="password"
-            id="password"
-            v-model="password"
-            required
-            placeholder="Digite sua senha"
-            class="form-input"
-          />
+          <div class="input-container">
+            <i class="fas fa-lock input-icon"></i>
+            <input
+              :type="showPassword ? 'text' : 'password'"
+              id="password"
+              v-model="password"
+              required
+              placeholder="Digite sua senha"
+              class="form-input"
+            />
+            <i
+              :class="['toggle-password', showPassword ? 'fas fa-eye-slash' : 'fas fa-eye']"
+              @click="togglePassword"
+            ></i>
+          </div>
         </div>
 
         <div class="form-forgot">
@@ -63,6 +73,7 @@ export default {
     return {
       email: '',
       password: '',
+      showPassword: false,
     }
   },
   methods: {
@@ -84,6 +95,9 @@ export default {
     },
     loginWithGoogle() {
       console.log('Iniciando login com Google...')
+    },
+    togglePassword() {
+      this.showPassword = !this.showPassword
     },
   },
 }
@@ -141,8 +155,36 @@ export default {
   color: #8d8d8d;
 }
 
+.input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 10px;
+  color: #8d8d8d;
+  background-color: transparent;
+  font-size: 1rem;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 10px;
+  color: #8d8d8d;
+  background-color: transparent;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.toggle-password:hover {
+  color: #2a558c;
+}
+
 .form-input {
-  padding: 0.5rem;
+  width: 100%;
+  padding: 0.5rem 2.5rem;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 1rem;
