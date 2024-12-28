@@ -55,6 +55,26 @@
           </div>
         </div>
 
+        <div class="form-group">
+          <label for="confirmPassword">Confirme a senha</label>
+          <div class="input-container">
+            <i class="fas fa-lock input-icon"></i>
+            <input
+              :type="showConfirmPassword ? 'text' : 'password'"
+              id="confirmPassword"
+              v-model="confirmPassword"
+              required
+              placeholder="Digite sua senha novamente"
+              class="form-input"
+            />
+            <i
+              :class="['toggle-password', showConfirmPassword ? 'fas fa-eye-slash' : 'fas fa-eye']"
+              @click="toggleConfirmPassword"
+            ></i>
+          </div>
+          <span class="error-message" v-if="!passwordsMatch"> As senhas não conferem </span>
+        </div>
+
         <div class="form-actions">
           <button type="submit" class="register-button" :disabled="!isFormValid">Cadastrar</button>
         </div>
@@ -85,10 +105,15 @@ export default {
       name: '',
       email: '',
       password: '',
+      confirmPassword: '',
       showPassword: false,
+      showConfirmPassword: false,
     }
   },
   computed: {
+    passwordsMatch() {
+      return this.password === this.confirmPassword || this.confirmPassword === ''
+    },
     isFormValid() {
       return this.name && this.email && this.password
     },
@@ -144,7 +169,7 @@ export default {
 .title-container {
   background: linear-gradient(to right, #4e59f3, #454db8, #1e27a4);
   background-size: 200% auto;
-  height: 300px;
+  height: 250px;
   padding: 1.5rem;
   border-bottom-left-radius: 50px;
   margin-bottom: 2rem;
@@ -165,7 +190,7 @@ export default {
   padding: 0 2rem 2rem 2rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.2rem;
 }
 
 .form-group {
@@ -214,6 +239,7 @@ export default {
 }
 
 .register-button {
+  margin-top: 8px;
   width: 100%;
   padding: 0.75rem;
   background-color: #2a558c;

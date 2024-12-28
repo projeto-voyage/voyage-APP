@@ -124,7 +124,7 @@ export default {
 .title-container {
   background: linear-gradient(to right, #4e59f3, #454db8, #1e27a4);
   background-size: 200% auto;
-  height: 300px;
+  height: 250px;
   padding: 1.5rem;
   border-bottom-left-radius: 50px;
   margin-bottom: 2rem;
@@ -145,7 +145,7 @@ export default {
   padding: 0 2rem 2rem 2rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.2rem;
 }
 
 .form-group {
