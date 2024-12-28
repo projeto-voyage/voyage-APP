@@ -1,11 +1,13 @@
 <template>
   <div class="login-container">
     <div class="login-card">
-      <h1 class="login-title">Login</h1>
+      <div class="title-container">
+        <h1 class="login-title">Login</h1>
+      </div>
 
       <form @submit.prevent="handleSubmit" class="login-form">
         <div class="form-group">
-          <label for="email">E-mail:</label>
+          <label for="email">Email</label>
           <input
             type="email"
             id="email"
@@ -17,7 +19,7 @@
         </div>
 
         <div class="form-group">
-          <label for="password">Senha:</label>
+          <label for="password">Senha</label>
           <input
             type="password"
             id="password"
@@ -28,13 +30,26 @@
           />
         </div>
 
+        <div class="form-forgot">
+          <a href="#" @click.prevent="forgotPassword">Esqueci a minha senha</a>
+        </div>
+
         <div class="form-actions">
           <button type="submit" class="login-button">Entrar</button>
         </div>
 
-        <div class="form-links">
-          <a href="#" @click.prevent="forgotPassword">Esqueceu a senha?</a>
-          <a href="#" @click.prevent="goToRegister">Criar conta</a>
+        <div class="separator">
+          <span>Entre com</span>
+        </div>
+
+        <div class="social-login">
+          <button @click.prevent="loginWithGoogle" class="google-btn">
+            <img src="/img/google.png" alt="Google Logo" />
+          </button>
+        </div>
+
+        <div class="form-link">
+          <a href="#" @click.prevent="goToRegister">Não possui uma conta? Cadastre-se</a>
         </div>
       </form>
     </div>
@@ -53,7 +68,6 @@ export default {
   methods: {
     async handleSubmit() {
       try {
-        // Aqui você implementaria a lógica de autenticação
         console.log('Login tentado com:', {
           email: this.email,
           password: this.password,
@@ -63,11 +77,13 @@ export default {
       }
     },
     forgotPassword() {
-      // Implementar redirecionamento para recuperação de senha
       console.log('Redirecionando para recuperação de senha...')
     },
     goToRegister() {
-      this.$router.push('/register')
+      console.log('Redirecionando para registro...')
+    },
+    loginWithGoogle() {
+      console.log('Iniciando login com Google...')
     },
   },
 }
@@ -84,20 +100,35 @@ export default {
 
 .login-card {
   background-color: white;
-  padding: 2rem;
-  border-radius: 8px;
+  padding: 0;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 400px;
+  overflow: hidden;
+}
+
+.title-container {
+  background: linear-gradient(to right, #4e59f3, #454db8, #1e27a4);
+  background-size: 200% auto;
+  height: 300px;
+  padding: 1.5rem;
+  border-bottom-left-radius: 50px;
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .login-title {
   text-align: center;
-  margin-bottom: 2rem;
-  color: #333;
+  color: #fff;
+  background-color: transparent;
+  margin: 0;
+  font-size: 2rem;
 }
 
 .login-form {
+  padding: 0 2rem 2rem 2rem;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -107,43 +138,104 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  color: #8d8d8d;
 }
 
 .form-input {
-  padding: 0.75rem;
+  padding: 0.5rem;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 1rem;
+  background-color: #eeeeee;
+  color: #8d8d8d;
+  box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
 }
 
 .login-button {
   width: 100%;
   padding: 0.75rem;
-  background-color: #4caf50;
-  color: white;
+  background-color: #2a558c;
+  box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
+  color: #fff;
   border: none;
-  border-radius: 4px;
-  font-size: 1rem;
+  border-radius: 50px;
+  font-size: 1.5rem;
   cursor: pointer;
-  transition: background-color 0.2s;
 }
 
 .login-button:hover {
-  background-color: #45a049;
+  transform: scale(1.05);
 }
 
-.form-links {
+.form-forgot {
   display: flex;
-  justify-content: space-between;
   font-size: 0.9rem;
 }
 
-.form-links a {
-  color: #666;
+.form-forgot a {
+  color: #5a9fde;
   text-decoration: none;
+  border-bottom: 1px solid #5a9fde;
 }
 
-.form-links a:hover {
-  text-decoration: underline;
+.form-forgot a:hover {
+  border-bottom: 2px solid #5a9fde;
+}
+
+.form-link {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.form-link a {
+  color: #5a9fde;
+  text-decoration: none;
+  border-bottom: 1px solid #5a9fde;
+}
+
+.form-link a:hover {
+  border-bottom: 2px solid #5a9fde;
+}
+
+/* Novos estilos adicionados */
+.separator {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  width: 60%;
+  margin: 0 auto;
+}
+
+.separator::before,
+.separator::after {
+  content: '';
+  flex: 1;
+  border-top: 1px solid;
+  margin: 0 5px;
+}
+
+.social-login {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.google-btn {
+  background: none;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.google-btn img {
+  width: 40px;
+  height: 40px;
+}
+
+.google-btn:hover {
+  border: 2px solid #ddd;
+  border-radius: 50%;
 }
 </style>
