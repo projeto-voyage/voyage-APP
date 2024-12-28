@@ -19,6 +19,7 @@
               class="form-input"
             />
           </div>
+          <span class="error-message" v-if="!emailValid"> O e-mail é inválido </span>
         </div>
 
         <div class="form-group">
@@ -45,7 +46,7 @@
         </div>
 
         <div class="form-actions">
-          <button type="submit" class="login-button">Entrar</button>
+          <button type="submit" class="login-button" :disabled="!isFormValid">Entrar</button>
         </div>
 
         <div class="separator">
@@ -75,6 +76,15 @@ export default {
       password: '',
       showPassword: false,
     }
+  },
+  computed: {
+    emailValid() {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      return emailRegex.test(this.email) || this.email === ''
+    },
+    isFormValid() {
+      return this.email && this.password && this.emailValid
+    },
   },
   methods: {
     async handleSubmit() {
@@ -205,8 +215,14 @@ export default {
   cursor: pointer;
 }
 
-.login-button:hover {
+.login-button:hover:not(:disabled) {
   transform: scale(1.05);
+}
+
+.login-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .form-forgot {
@@ -241,7 +257,12 @@ export default {
   border-bottom: 2px solid #5a9fde;
 }
 
-/* Novos estilos adicionados */
+.error-message {
+  color: #dc3545;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+}
+
 .separator {
   display: flex;
   align-items: center;

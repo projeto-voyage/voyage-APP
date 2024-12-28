@@ -34,6 +34,7 @@
               class="form-input"
             />
           </div>
+          <span class="error-message" v-if="!emailValid"> O e-mail é inválido </span>
         </div>
 
         <div class="form-group">
@@ -53,6 +54,9 @@
               @click="togglePassword"
             ></i>
           </div>
+          <span class="error-message" v-if="!passwordValid">
+            A senha deve ter pelo menos 8 caracteres
+          </span>
         </div>
 
         <div class="form-group">
@@ -111,11 +115,26 @@ export default {
     }
   },
   computed: {
+    emailValid() {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      return emailRegex.test(this.email) || this.email === ''
+    },
+    passwordValid() {
+      return this.password.length >= 8 || this.password === ''
+    },
     passwordsMatch() {
       return this.password === this.confirmPassword || this.confirmPassword === ''
     },
     isFormValid() {
-      return this.name && this.email && this.password
+      return (
+        this.name &&
+        this.email &&
+        this.password &&
+        this.confirmPassword &&
+        this.emailValid &&
+        this.passwordValid &&
+        this.passwordsMatch
+      )
     },
   },
   methods: {
