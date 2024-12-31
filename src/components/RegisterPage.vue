@@ -128,8 +128,6 @@ export default {
           password: this.password,
         });
 
-        console.log('Usuário registrado com sucesso:', response);
-
         this.successMessage = 'Usuário cadastrado com sucesso!';
         this.showAlert = true;
 
