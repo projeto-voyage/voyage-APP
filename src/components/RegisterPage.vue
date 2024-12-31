@@ -1,6 +1,11 @@
 <template>
   <div class="register-container">
     <div class="register-card">
+
+      <div v-if="showAlert" class="alert success-alert">
+        {{ successMessage }}
+      </div>
+
       <div class="title-container">
         <h1 class="register-title">Cadastro</h1>
       </div>
@@ -10,14 +15,7 @@
           <label for="name">Nome</label>
           <div class="input-container">
             <i class="fas fa-user input-icon"></i>
-            <input
-              type="text"
-              id="name"
-              v-model="name"
-              required
-              placeholder="Digite seu nome"
-              class="form-input"
-            />
+            <input type="text" id="name" v-model="name" required placeholder="Digite seu nome" class="form-input" />
           </div>
         </div>
 
@@ -25,14 +23,8 @@
           <label for="email">E-mail</label>
           <div class="input-container">
             <i class="fas fa-envelope input-icon"></i>
-            <input
-              type="email"
-              id="email"
-              v-model="email"
-              required
-              placeholder="Digite seu e-mail"
-              class="form-input"
-            />
+            <input type="email" id="email" v-model="email" required placeholder="Digite seu e-mail"
+              class="form-input" />
           </div>
           <span class="error-message" v-if="!emailValid"> O e-mail é inválido </span>
         </div>
@@ -41,18 +33,10 @@
           <label for="password">Senha</label>
           <div class="input-container">
             <i class="fas fa-lock input-icon"></i>
-            <input
-              :type="showPassword ? 'text' : 'password'"
-              id="password"
-              v-model="password"
-              required
-              placeholder="Digite sua senha"
-              class="form-input"
-            />
-            <i
-              :class="['toggle-password', showPassword ? 'fas fa-eye-slash' : 'fas fa-eye']"
-              @click="togglePassword"
-            ></i>
+            <input :type="showPassword ? 'text' : 'password'" id="password" v-model="password" required
+              placeholder="Digite sua senha" class="form-input" />
+            <i :class="['toggle-password', showPassword ? 'fas fa-eye-slash' : 'fas fa-eye']"
+              @click="togglePassword"></i>
           </div>
           <span class="error-message" v-if="!passwordValid">
             A senha deve ter pelo menos 8 caracteres
@@ -63,18 +47,10 @@
           <label for="confirmPassword">Confirme a senha</label>
           <div class="input-container">
             <i class="fas fa-lock input-icon"></i>
-            <input
-              :type="showConfirmPassword ? 'text' : 'password'"
-              id="confirmPassword"
-              v-model="confirmPassword"
-              required
-              placeholder="Digite sua senha novamente"
-              class="form-input"
-            />
-            <i
-              :class="['toggle-password', showConfirmPassword ? 'fas fa-eye-slash' : 'fas fa-eye']"
-              @click="toggleConfirmPassword"
-            ></i>
+            <input :type="showConfirmPassword ? 'text' : 'password'" id="confirmPassword" v-model="confirmPassword"
+              required placeholder="Digite sua senha novamente" class="form-input" />
+            <i :class="['toggle-password', showConfirmPassword ? 'fas fa-eye-slash' : 'fas fa-eye']"
+              @click="toggleConfirmPassword"></i>
           </div>
           <span class="error-message" v-if="!passwordsMatch"> As senhas não conferem </span>
         </div>
@@ -102,6 +78,8 @@
 </template>
 
 <script>
+import { createUser } from '@/services/userService';
+
 export default {
   name: 'RegisterComponent',
   data() {
@@ -112,18 +90,20 @@ export default {
       confirmPassword: '',
       showPassword: false,
       showConfirmPassword: false,
-    }
+      successMessage: '',
+      showAlert: false,
+    };
   },
   computed: {
     emailValid() {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-      return emailRegex.test(this.email) || this.email === ''
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(this.email) || this.email === '';
     },
     passwordValid() {
-      return this.password.length >= 8 || this.password === ''
+      return this.password.length >= 8 || this.password === '';
     },
     passwordsMatch() {
-      return this.password === this.confirmPassword || this.confirmPassword === ''
+      return this.password === this.confirmPassword || this.confirmPassword === '';
     },
     isFormValid() {
       return (
@@ -134,38 +114,49 @@ export default {
         this.emailValid &&
         this.passwordValid &&
         this.passwordsMatch
-      )
+      );
     },
   },
   methods: {
     async handleSubmit() {
-      if (!this.isFormValid) return
+      if (!this.isFormValid) return;
 
       try {
-        console.log('Registro tentado com:', {
+        const response = await createUser({
           name: this.name,
           email: this.email,
           password: this.password,
-        })
+        });
+
+        console.log('Usuário registrado com sucesso:', response);
+
+        this.successMessage = 'Usuário cadastrado com sucesso!';
+        this.showAlert = true;
+
+        setTimeout(() => {
+          this.$router.push('/login');
+        }, 5000);
       } catch (error) {
-        console.error('Erro ao registrar:', error)
+        console.error('Erro ao registrar:', error);
+        alert('Ocorreu um erro ao tentar registrar o usuário. Tente novamente.');
       }
     },
     goToLogin() {
-      this.$router.push('/login')
+      this.$router.push('/login');
     },
     loginWithGoogle() {
-      console.log('Iniciando login com Google...')
+      console.log('Iniciando login com Google...');
     },
     togglePassword() {
-      this.showPassword = !this.showPassword
+      this.showPassword = !this.showPassword;
     },
     toggleConfirmPassword() {
-      this.showConfirmPassword = !this.showConfirmPassword
+      this.showConfirmPassword = !this.showConfirmPassword;
     },
   },
-}
+};
 </script>
+
 
 <style scoped>
 .register-container {
@@ -340,5 +331,32 @@ export default {
 .google-btn:hover {
   border: 2px solid #ddd;
   border-radius: 50%;
+}
+
+.alert {
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 5px;
+  font-size: 1rem;
+  text-align: center;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.success-alert {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 </style>
