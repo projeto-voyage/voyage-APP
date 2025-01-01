@@ -68,6 +68,8 @@
 </template>
 
 <script>
+import axios from 'axios'
+
 export default {
   name: 'LoginComponent',
   data() {
@@ -89,12 +91,13 @@ export default {
   methods: {
     async handleSubmit() {
       try {
-        console.log('Login tentado com:', {
+        const response = await axios.post('http://localhost:3000/login', {
           email: this.email,
           password: this.password,
         })
+        console.log('Login successful:', response.data)
       } catch (error) {
-        console.error('Erro ao fazer login:', error)
+        console.error('Error during login:', error.response.data)
       }
     },
     forgotPassword() {

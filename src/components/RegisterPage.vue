@@ -102,6 +102,8 @@
 </template>
 
 <script>
+import axios from 'axios'
+
 export default {
   name: 'RegisterComponent',
   data() {
@@ -142,13 +144,14 @@ export default {
       if (!this.isFormValid) return
 
       try {
-        console.log('Registro tentado com:', {
+        const response = await axios.post('http://localhost:3000/register', {
           name: this.name,
           email: this.email,
           password: this.password,
         })
+        console.log('Registration successful:', response.data)
       } catch (error) {
-        console.error('Erro ao registrar:', error)
+        console.error('Error during registration:', error.response.data)
       }
     },
     goToLogin() {
