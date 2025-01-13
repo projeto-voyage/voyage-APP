@@ -95,7 +95,14 @@ export default {
           email: this.email,
           password: this.password,
         })
-        console.log('Login successful:', response.data)
+        // Salva o token JWT no localStorage
+        localStorage.setItem('token', response.data.token)
+        localStorage.setItem('userData', JSON.stringify(response.data.user))
+
+        // Configura o token como padrão para todas as requisições futuras
+        axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`
+
+        this.$router.push('/home')
       } catch (error) {
         console.error('Error during login:', error.response.data)
       }
