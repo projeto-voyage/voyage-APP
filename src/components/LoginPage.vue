@@ -5,6 +5,12 @@
         <h1 class="login-title">Login</h1>
       </div>
 
+      <!-- Alert de erro -->
+      <div v-if="errorMessage" class="error-alert">
+        <i class="fas fa-exclamation-circle error-icon"></i>
+        {{ errorMessage }}
+      </div>
+
       <form @submit.prevent="handleSubmit" class="login-form">
         <div class="form-group">
           <label for="email">Email</label>
@@ -39,6 +45,9 @@
               @click="togglePassword"
             ></i>
           </div>
+          <span class="error-message" v-if="passwordError">
+            {{ passwordErrorMessage }}
+          </span>
         </div>
 
         <div class="form-forgot">
@@ -46,7 +55,9 @@
         </div>
 
         <div class="form-actions">
-          <button type="submit" class="login-button" :disabled="!isFormValid">Entrar</button>
+          <button type="submit" class="login-button" :disabled="!isFormValid || isLoading">
+            {{ isLoading ? 'Entrando...' : 'Entrar' }}
+          </button>
         </div>
 
         <div class="separator">
@@ -77,6 +88,10 @@ export default {
       email: '',
       password: '',
       showPassword: false,
+      errorMessage: '',
+      isLoading: false,
+      passwordError: false,
+      passwordErrorMessage: '',
     }
   },
   computed: {
@@ -89,7 +104,15 @@ export default {
     },
   },
   methods: {
+    clearErrors() {
+      this.errorMessage = ''
+      this.passwordError = false
+      this.passwordErrorMessage = ''
+    },
     async handleSubmit() {
+      this.clearErrors()
+      this.isLoading = true
+
       try {
         const response = await axios.post('http://localhost:3000/login', {
           email: this.email,
@@ -104,7 +127,25 @@ export default {
 
         this.$router.push('/home')
       } catch (error) {
-        console.error('Error during login:', error.response.data)
+        const errorResponse = error.response?.data
+
+        if (error.response?.status === 401) {
+          this.errorMessage = 'Email ou senha incorretos'
+        } else if (error.response?.status === 422) {
+          if (errorResponse.errors?.password) {
+            this.passwordError = true
+            this.passwordErrorMessage = errorResponse.errors.password[0]
+          }
+          if (errorResponse.errors?.email) {
+            this.errorMessage = errorResponse.errors.email[0]
+          }
+        } else if (error.response?.status === 429) {
+          this.errorMessage = 'Muitas tentativas de login. Por favor, tente novamente mais tarde.'
+        } else {
+          this.errorMessage = 'Ocorreu um erro ao fazer login. Tente novamente mais tarde.'
+        }
+      } finally {
+        this.isLoading = false
       }
     },
     forgotPassword() {
@@ -271,6 +312,22 @@ export default {
   color: #dc3545;
   font-size: 0.85rem;
   margin-top: 0.25rem;
+}
+
+.error-alert {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 1rem;
+  margin: 0 2rem 1rem 2rem;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.error-icon {
+  font-size: 1.25rem;
 }
 
 .separator {
