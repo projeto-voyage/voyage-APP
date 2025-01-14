@@ -128,6 +128,7 @@ export default {
         this.$router.push('/home')
       } catch (error) {
         const errorResponse = error.response?.data
+        console.error('Erro em login:', errorResponse)
 
         if (error.response?.status === 401) {
           this.errorMessage = 'Email ou senha incorretos'

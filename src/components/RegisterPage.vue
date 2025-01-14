@@ -5,6 +5,12 @@
         <h1 class="register-title">Cadastro</h1>
       </div>
 
+      <!-- Alert de erro -->
+      <div v-if="errorMessage" class="error-alert">
+        <i class="fas fa-exclamation-circle error-icon"></i>
+        {{ errorMessage }}
+      </div>
+
       <form @submit.prevent="handleSubmit" class="register-form">
         <div class="form-group">
           <label for="name">Nome</label>
@@ -80,7 +86,9 @@
         </div>
 
         <div class="form-actions">
-          <button type="submit" class="register-button" :disabled="!isFormValid">Cadastrar</button>
+          <button type="submit" class="register-button" :disabled="!isFormValid || isLoading">
+            {{ isLoading ? 'Cadastrando...' : 'Cadastrar' }}
+          </button>
         </div>
 
         <div class="separator">
@@ -114,6 +122,8 @@ export default {
       confirmPassword: '',
       showPassword: false,
       showConfirmPassword: false,
+      isLoading: false,
+      errorMessage: '',
     }
   },
   computed: {
@@ -140,18 +150,28 @@ export default {
     },
   },
   methods: {
+    clearErrors() {
+      this.errorMessage = ''
+    },
     async handleSubmit() {
+      this.clearErrors()
       if (!this.isFormValid) return
 
+      this.isLoading = true
+
       try {
-        const response = await axios.post('http://localhost:3000/register', {
+        await axios.post('http://localhost:3000/register', {
           name: this.name,
           email: this.email,
           password: this.password,
         })
-        console.log('Registration successful:', response.data)
+
+        this.$router.push('/login')
       } catch (error) {
-        console.error('Error during registration:', error.response.data)
+        this.errorMessage = 'Erro ao cadastrar. Por favor, tente novamente.'
+        console.error('Erro em registro:', error.response.data)
+      } finally {
+        this.isLoading = false
       }
     },
     goToLogin() {
@@ -304,6 +324,22 @@ export default {
   color: #dc3545;
   font-size: 0.85rem;
   margin-top: 0.25rem;
+}
+
+.error-alert {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 1rem;
+  margin: 0 2rem 1rem 2rem;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.error-icon {
+  font-size: 1.25rem;
 }
 
 .separator {
