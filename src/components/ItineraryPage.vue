@@ -20,6 +20,9 @@
             <input
                 :type="input.type"
                 :placeholder="input.placeholder"
+                v-model="inputData[input.model]"
+                :step="input.step"
+                @input="handleNumberInput(input.model, $event)"
             >
             </div>
 
@@ -29,40 +32,68 @@
     </div>
 </template>
   
-  <script>
-  export default {
+<script>
+    import axios from 'axios';
+
+    export default {
     data() {
-      return {
+        return {
         activeIndex: null,
+        inputData: {
+            destination: '',
+            budget: '',
+            duration: ''
+        },
         inputs: [
-          {
+            {
             placeholder: "Para onde vamos?",
             icon: "fas fa-location-arrow",
-            type: "text"
-          },
-          {
+            type: "text",
+            model: "destination"
+            },
+            {
             placeholder: "Quanto temos?",
             icon: "fas fa-dollar-sign",
-            type: "number"
-          },
-          {
+            type: "number",
+            model: "budget",
+            step: 1
+            },
+            {
             placeholder: "Quanto tempo passaremos?",
             icon: "fas fa-clock",
-            type: "text"
-          }
+            type: "number",
+            model: "duration",
+            step: 1
+            }
         ]
-      }
+        }
     },
     methods: {
-      setActive(index) {
+        setActive(index) {
         this.activeIndex = index
-      },
-      generateItinerary() {
-        // Lógica para gerar o roteiro
-      }
+        },
+        handleNumberInput(model, event) {
+        // Garante que apenas números inteiros sejam aceitos
+        this.inputData[model] = event.target.value.replace(/[^0-9]/g, '');
+        },
+        async generateItinerary() {
+        try {
+            const response = await axios.post('http://localhost:3000/itineraries', {
+            destination: this.inputData.destination,
+            budget: parseInt(this.inputData.budget),
+            duration: parseInt(this.inputData.duration)
+            });
+
+            console.log('Roteiro gerado:', response.data);
+            // Adicione aqui a lógica para tratar a resposta
+        } catch (error) {
+            console.error('Erro ao gerar roteiro:', error);
+            // Adicione aqui o tratamento de erros
+        }
+        }
     }
-  }
-  </script>
+    }
+</script>
   
   <style scoped>
   .page-container {
