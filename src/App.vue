@@ -1,31 +1,16 @@
 <template>
   <div id="app">
-    <!-- <RouterView /> -->
-    <Header />
-    <Hero />
-    <Features />
-    <Testimonials />
-    <Footer />
+    <RouterView />
   </div>
 </template>
 
 <script>
 import { RouterView } from 'vue-router'
-import Header from './components/Header.vue';
-import Hero from './components/Hero.vue';
-import Features from './components/Features.vue';
-import Testimonials from './components/Testimonials.vue';
-import Footer from './components/Footer.vue';
 
 export default {
   name: 'App',
   components: {
-    // RouterView,
-    Header,
-    Hero,
-    Features,
-    Testimonials,
-    Footer,
+    RouterView
   },
 }
 </script>
