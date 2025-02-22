@@ -114,7 +114,7 @@ export default {
       this.isLoading = true
 
       try {
-        const response = await axios.post('http://localhost:3000/login', {
+        const response = await axios.post('http://localhost:3000/auth/signIn', {
           email: this.email,
           password: this.password,
         })
