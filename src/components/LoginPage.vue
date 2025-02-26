@@ -2,7 +2,7 @@
   <div class="login-container">
     <div class="login-card">
       <div class="title-container">
-        <h1 class="login-title">Login</h1>
+        <img src="../assets/logoVoyageBranca.png" alt="Logo" style="background-color: transparent;">
       </div>
 
       <!-- Alert de erro -->

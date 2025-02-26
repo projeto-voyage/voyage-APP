@@ -7,7 +7,7 @@
       </div>
 
       <div class="title-container">
-        <h1 class="register-title">Cadastro</h1>
+        <img src="../assets/logoVoyageBranca.png" alt="Logo" style="background-color: transparent;">
       </div>
 
       <!-- Alert de erro -->
