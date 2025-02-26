@@ -12,7 +12,7 @@
         <h3>
           Deixe a nossa IA criar roteiros personalizados com base no seu destino, tempo disponível e orçamento.
         </h3>
-        <button class="cta-button">Experimente grátis!</button>
+        <button class="cta-button" @click="redirectToLogin">Experimente grátis!</button>
       </div>
 
       <!-- Seção de Imagem -->
@@ -25,7 +25,12 @@
 
 <script>
 export default {
-  name: 'LandingPage'
+  name: 'LandingPage',
+  methods: {
+    redirectToLogin() {
+      this.$router.push('/login');
+    }
+  }
 }
 </script>
 
