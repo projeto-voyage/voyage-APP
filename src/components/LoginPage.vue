@@ -2,7 +2,7 @@
   <div class="login-container">
     <div class="login-card">
       <div class="title-container">
-        <h1 class="login-title">Login</h1>
+        <img src="../assets/logoVoyageBranca.png" alt="Logo" style="background-color: transparent;">
       </div>
 
       <!-- Alert de erro -->
@@ -258,11 +258,11 @@ export default {
 .login-button {
   width: 100%;
   padding: 0.75rem;
-  background-color: #2a558c;
+  background-color: #1e27a4;
   box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
   color: #fff;
   border: none;
-  border-radius: 50px;
+  border-radius: 10px;
   font-size: 1.5rem;
   cursor: pointer;
 }

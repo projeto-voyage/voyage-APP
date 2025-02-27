@@ -1,6 +1,8 @@
 <template>
   <header>
-    <div class="logo">Voyage</div>
+    <div style="background-color: transparent;">
+      <img src="../assets/logoVoyageBranca.png" alt="Logo" class="logo">
+    </div>
       <nav>
         <a href="#">Início</a> |
         <a href="#">Recursos</a> |
@@ -28,10 +30,10 @@ header {
 }
 
 .logo {
-  font-size: 24px;
-  font-weight: bold;
-  color: black;
-  padding: 0.5em;
+  background-color: transparent;
+  margin: 0 2em;
+  width: 60px;
+  height: 60px;
 }
 
 nav {
