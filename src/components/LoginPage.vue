@@ -153,7 +153,7 @@ export default {
       console.log('Redirecionando para recuperação de senha...')
     },
     goToRegister() {
-      console.log('Redirecionando para registro...')
+      this.$router.push('/register')
     },
     loginWithGoogle() {
       console.log('Iniciando login com Google...')
