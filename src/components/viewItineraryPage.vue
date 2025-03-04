@@ -110,13 +110,17 @@ export default {
   background-color: #ffffff;
   min-height: 100vh;
   padding: 2rem;
+  display: flex;
 }
 
 .itinerary-content {
   background-color: #d9d9d9;
+  flex: 1;
   border-radius: 15px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem;
 }
 
 h2 {
@@ -128,11 +132,12 @@ h2 {
 h3 {
   background-color: transparent;
   font-size: 1.5rem;
-  margin: 1rem 0;
+  margin-bottom: 1rem;
 }
 
 .info-card {
-  background: #d9d9d9;
+  background: #e9e9e9;
+  border-radius: 15px;
   padding: 2rem;
   margin-bottom: 2rem;
 }
@@ -155,12 +160,16 @@ h3 {
 }
 
 .details-card {
-  background: #d9d9d9;
+  background: #837272;
+  border-radius: 15px;
+  flex: 1;
   padding: 2rem;
   margin-bottom: 2rem;
+  overflow-y: auto;
 }
 
 .days-grid {
+  height: 100%;
   background-color: transparent;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -173,18 +182,28 @@ h3 {
   background: #9b8585;
   color: #ffffff;
   border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.day-plan h3 {
+  flex: 0 0 auto;
 }
 
 .day-plan p, .day-plan strong {
   color: #ffffff;
   background: transparent;
+  flex: 1 1 auto;
+  overflow: auto;
+  margin: 4px 0;
 }
 
 .download-button {
   background-color: #2A558C;
   color: white;
   border: none;
-  border-radius: 25px;
+  border-radius: 10px;
   padding: 1rem 2rem;
   font-size: 1.1rem;
   cursor: pointer;
@@ -192,7 +211,7 @@ h3 {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin: 1rem auto;
+  margin: auto;
 }
 
 .download-button:hover {
