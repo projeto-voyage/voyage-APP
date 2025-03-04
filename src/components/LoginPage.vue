@@ -114,10 +114,11 @@ export default {
       this.isLoading = true
 
       try {
-        const response = await axios.post('http://localhost:3000/login', {
+        const response = await axios.post('http://localhost:3000/auth/signIn', {
           email: this.email,
           password: this.password,
         })
+        console.log('Login bem-sucedido:', response.data)
         // Salva o token JWT no localStorage
         localStorage.setItem('token', response.data.token)
         localStorage.setItem('userData', JSON.stringify(response.data.user))
