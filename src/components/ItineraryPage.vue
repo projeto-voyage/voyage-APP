@@ -175,6 +175,10 @@
             destination: this.inputData.destination,
             totalDays: parseInt(this.inputData.duration),
             totalCost: parseInt(this.inputData.budget)
+          }, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`
+            }
           });
   
           this.successMessage = 'Roteiro gerado com sucesso!';

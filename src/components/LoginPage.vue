@@ -123,9 +123,6 @@ export default {
         localStorage.setItem('token', response.data.token)
         localStorage.setItem('userData', JSON.stringify(response.data.user))
 
-        // Configura o token como padrão para todas as requisições futuras
-        axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`
-
         this.$router.push('/home')
       } catch (error) {
         const errorResponse = error.response?.data
