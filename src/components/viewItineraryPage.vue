@@ -214,6 +214,10 @@ h3 {
   margin: auto;
 }
 
+.download-button i {
+  background: transparent;
+}
+
 .download-button:hover {
   background-color: #1d3d66;
 }
