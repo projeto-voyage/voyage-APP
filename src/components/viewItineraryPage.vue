@@ -1,12 +1,8 @@
 <template>
     <div class="itinerary-container">
-      <div class="header">
-        <h1>Seu Roteiro de Viagem</h1>
-      </div>
-  
       <div class="itinerary-content">
         <div class="info-card">
-          <h2>Informações Gerais</h2>
+          <h2>Seu Roteiro de Viagem</h2>
           <div class="info-item">
             <i class="fas fa-map-marker-alt"></i>
             <span><strong>Destino:</strong> {{ itinerary.destination }}</span>
@@ -22,7 +18,6 @@
         </div>
   
         <div class="details-card">
-          <h2>Detalhes do Roteiro</h2>
           <div class="days-grid">
             <div class="day-plan" v-for="(day, index) in itinerary.days" :key="index">
               <h3>Dia {{ day.day }}</h3>
@@ -112,42 +107,34 @@ export default {
 
 <style scoped>
 .itinerary-container {
-  background-color: #4B93BF;
+  background-color: #ffffff;
   min-height: 100vh;
   padding: 2rem;
 }
 
-.header {
-  background-color: #4B93BF;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 2rem;
-}
-
-h1 {
-  color: white;
-  background-color: #4B93BF;
-  font-size: 2.5rem;
+.itinerary-content {
+  background-color: #d9d9d9;
+  border-radius: 15px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin: 0 auto;
 }
 
 h2 {
   font-size: 2rem;
   margin-bottom: 1.5rem;
+  background-color: transparent;
 }
 
 h3 {
-  background-color: #f8f9fa;
+  background-color: transparent;
   font-size: 1.5rem;
   margin: 1rem 0;
 }
 
-.info-card, .details-card {
-  background: white;
-  border-radius: 15px;
+.info-card {
+  background: #d9d9d9;
   padding: 2rem;
   margin-bottom: 2rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .info-item {
@@ -155,6 +142,7 @@ h3 {
   align-items: center;
   margin: 1rem 0;
   font-size: 1.1rem;
+  background-color: transparent;
 }
 
 .info-item i {
@@ -162,7 +150,18 @@ h3 {
   color: #2A558C;
 }
 
+.info-item i, .info-item span, .info-item strong {
+  background-color: transparent;
+}
+
+.details-card {
+  background: #d9d9d9;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
 .days-grid {
+  background-color: transparent;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 1.5rem;
@@ -171,12 +170,14 @@ h3 {
 .day-plan {
   margin: 0;
   padding: 1rem;
-  background: #f8f9fa;
+  background: #9b8585;
+  color: #ffffff;
   border-radius: 10px;
 }
 
-.day-plan p {
-  background: #f8f9fa;
+.day-plan p, .day-plan strong {
+  color: #ffffff;
+  background: transparent;
 }
 
 .download-button {
