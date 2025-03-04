@@ -173,8 +173,8 @@
           this.isLoading = true;
           const response = await axios.post('http://localhost:3000/itineraries', {
             destination: this.inputData.destination,
-            budget: parseInt(this.inputData.budget),
-            duration: parseInt(this.inputData.duration)
+            totalDays: parseInt(this.inputData.duration),
+            totalCost: parseInt(this.inputData.budget)
           });
   
           this.successMessage = 'Roteiro gerado com sucesso!';
@@ -326,6 +326,7 @@
     width: 20px;
     height: 20px;
     margin-right: 0.5rem;
+    background-color: transparent;
     border: 3px solid #ffffff;
     border-top: 3px solid transparent;
     border-radius: 50%;
