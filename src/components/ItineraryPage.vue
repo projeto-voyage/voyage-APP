@@ -326,6 +326,7 @@
     width: 20px;
     height: 20px;
     margin-right: 0.5rem;
+    background-color: transparent;
     border: 3px solid #ffffff;
     border-top: 3px solid transparent;
     border-radius: 50%;
