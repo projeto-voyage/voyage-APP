@@ -20,7 +20,7 @@
         <div class="details-card">
           <div class="days-grid">
             <div class="day-plan" v-for="(day, index) in itinerary.days" :key="index">
-              <h3>Dia {{ day.day }}</h3>
+              <h3>Dia {{ day.day }}: {{ day.title }}</h3>
               <p><strong>Manhã:</strong> {{ day.morning }}</p>
               <p><strong>Tarde:</strong> {{ day.afternoon }}</p>
               <p><strong>Noite:</strong> {{ day.night }}</p>
@@ -38,38 +38,74 @@
   
 <script>
 import jsPDF from 'jspdf';
+import axios from 'axios';
 
 export default {
   data() {
     return {
       itinerary: {
-        destination: "Paris, França",
-        budget: "5000",
-        duration: 5,
-        days: [
-          {
-            day: 1,
-            morning: "Chegada no aeroporto e traslado para o hotel",
-            afternoon: "Visita à Torre Eiffel",
-            night: "Jantar em restaurante típico"
-          },
-          {
-            day: 2,
-            morning: "Visita ao Museu do Louvre",
-            afternoon: "Passeio pelos Jardins de Tuileries",
-            night: "Cruzeiro pelo Rio Sena"
-          },
-          {
-            day: 3,
-            morning: "Visita ao Museu do Louvre",
-            afternoon: "Passeio pelos Jardins de Tuileries",
-            night: "Cruzeiro pelo Rio Sena"
-          },
-        ]
-      }
+        destination: '',
+        budget: '',
+        duration: 0,
+        details: '',
+        days: []
+      },
+      parsedDays: []
     }
   },
+  mounted() {
+    axios.get('http://localhost:3000/itineraries')
+      .then(response => {
+        this.itinerary.destination = response.data.content.destination;
+        this.itinerary.budget = response.data.content.totalCost;
+        this.itinerary.duration = response.data.content.totalDays;
+        
+        // Processar os dias
+        this.parsedDays = this.parseItineraryText(response.data.content.details);
+      })
+      .catch(error => {
+        console.error('Erro ao buscar roteiro:', error);
+      });
+  },
   methods: {
+    parseItineraryText(text) {
+      const days = [];
+      // Regex para capturar dias e atividades
+      const dayRegex = /\*\*Dia (\d+): (.+?)\*\*\n\n([\s\S]+?)(?=\n\n\*\*Dia|$)/g;
+      
+      let match;
+      while ((match = dayRegex.exec(text)) !== null) {
+        const [, dayNumber, title, activitiesText] = match;
+        const day = {
+          day: dayNumber,
+          title: title.trim(),
+          morning: '',
+          afternoon: '',
+          night: ''
+        };
+
+        // Extrair atividades por período
+        const periods = {
+          'Manhã': /(\* \*\*Manhã[^*]+)/,
+          'Tarde': /(\* \*\*Tarde[^*]+)/,
+          'Noite': /(\* \*\*Noite[^*]+)/
+        };
+
+        for (const [period, regex] of Object.entries(periods)) {
+          const periodMatch = activitiesText.match(regex);
+          if (periodMatch) {
+            day[period.toLowerCase()] = periodMatch[0]
+              .replace(/\*\*Manhã[^:]+:\*\*/, '')
+              .replace(/\*\*Tarde[^:]+:\*\*/, '')
+              .replace(/\*\*Noite[^:]+:\*\*/, '')
+              .trim();
+          }
+        }
+
+        days.push(day);
+      }
+      return days;
+    },
     downloadPDF() {
       const doc = new jsPDF();
       
