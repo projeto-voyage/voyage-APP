@@ -19,7 +19,7 @@
   
         <div class="details-card">
           <div class="days-grid">
-            <div class="day-plan" v-for="(day, index) in itinerary.days" :key="index">
+            <div class="day-plan" v-for="(day, index) in parsedDays" :key="index">
               <h3>Dia {{ day.day }}: {{ day.title }}</h3>
               <p><strong>Manhã:</strong> {{ day.morning }}</p>
               <p><strong>Tarde:</strong> {{ day.afternoon }}</p>
@@ -84,22 +84,20 @@ export default {
           night: ''
         };
 
-        // Extrair atividades por período
-        const periods = {
-          'Manhã': /(\* \*\*Manhã[^*]+)/,
-          'Tarde': /(\* \*\*Tarde[^*]+)/,
-          'Noite': /(\* \*\*Noite[^*]+)/
-        };
-
-        for (const [period, regex] of Object.entries(periods)) {
-          const periodMatch = activitiesText.match(regex);
-          if (periodMatch) {
-            day[period.toLowerCase()] = periodMatch[0]
-              .replace(/\*\*Manhã[^:]+:\*\*/, '')
-              .replace(/\*\*Tarde[^:]+:\*\*/, '')
-              .replace(/\*\*Noite[^:]+:\*\*/, '')
-              .trim();
-          }
+        // Extrair atividades por período - corrigindo as regex para o formato real
+        const morningMatch = activitiesText.match(/\*\*Manhã[^:]*:\*\*\s*(.*?)(?=\n\*\*|$)/s);
+        if (morningMatch) {
+          day.morning = morningMatch[1].replace(/\*/g, '').trim();
+        }
+        
+        const afternoonMatch = activitiesText.match(/\*\*Tarde[^:]*:\*\*\s*(.*?)(?=\n\*\*|$)/s);
+        if (afternoonMatch) {
+          day.afternoon = afternoonMatch[1].replace(/\*/g, '').trim();
+        }
+        
+        const nightMatch = activitiesText.match(/\*\*Noite[^:]*:\*\*\s*(.*?)(?=\n\*\*|$)/s);
+        if (nightMatch) {
+          day.night = nightMatch[1].replace(/\*/g, '').trim();
         }
 
         days.push(day);
