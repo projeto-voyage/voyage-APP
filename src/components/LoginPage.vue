@@ -122,7 +122,9 @@ export default {
         // Salva o token JWT no localStorage
         localStorage.setItem('token', response.data.access_token)
 
-        this.$router.push('/itinerary')
+        this.$router.push({
+          path: '/itinerary',
+        });
       } catch (error) {
         const errorResponse = error.response?.data
         console.error('Erro em login:', errorResponse)
@@ -150,7 +152,9 @@ export default {
       console.log('Redirecionando para recuperação de senha...')
     },
     goToRegister() {
-      this.$router.push('/register')
+      this.$router.push({
+        path: '/register',
+      })
     },
     loginWithGoogle() {
       console.log('Iniciando login com Google...')

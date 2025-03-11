@@ -54,10 +54,15 @@ export default {
       token: null
     }
   },
+  computed: {
+    itineraryId() {
+      return this.$route.params.id
+    } 
+  },
   mounted() {
     this.token = localStorage.getItem('token')
 
-    axios.get('http://localhost:3000/itineraries', {
+    axios.get(`http://localhost:3000/itineraries/${this.itineraryId}`, {
       headers: {
         'Authorization': `Bearer ${this.token}`
       }

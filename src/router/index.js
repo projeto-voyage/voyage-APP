@@ -29,7 +29,7 @@ const router = createRouter({
       component: ItineraryView,
     },
     {
-      path: '/itinerary/view',
+      path: '/itinerary/:id',
       name: 'itineraryview',
       component: viewItineraryView,
     }
