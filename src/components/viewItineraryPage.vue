@@ -68,6 +68,7 @@ export default {
       }
     })
       .then(response => {
+        // console.log(response.data.content);
         this.itinerary.destination = response.data.content.destination;
         this.itinerary.budget = response.data.content.totalCost;
         this.itinerary.duration = response.data.content.totalDays;
@@ -82,38 +83,103 @@ export default {
   methods: {
     parseItineraryText(text) {
       const days = [];
-      // Regex para capturar dias e atividades
-      const dayRegex = /\*\*Dia (\d+): (.+?)\*\*\n\n([\s\S]+?)(?=\n\n\*\*Dia|$)/g;
       
-      let match;
-      while ((match = dayRegex.exec(text)) !== null) {
-        const [, dayNumber, title, activitiesText] = match;
-        const day = {
-          day: dayNumber,
-          title: title.trim(),
-          morning: '',
-          afternoon: '',
-          night: ''
-        };
+      // Extrair informações dos dias com diversos formatos possíveis
+      // 1. Padrão standard com Dia X: Título no formato Markdown ou com asteriscos
+      const dayRegexPatterns = [
+        /\*\*Dia (\d+): ([^*]+)\*\*\s*\n([\s\S]+?)(?=\n\s*\*\*Dia \d+:|$)/g,  // **Dia X: Título**
+        /\n\*\*Dia (\d+):\s*([^*]+)\*\*\s*\n([\s\S]+?)(?=\n\s*\*\*Dia \d+:|$)/g,  // **Dia X: Título**
+        /Dia (\d+):\s*([^\n]+)\n([\s\S]+?)(?=\nDia \d+:|$)/g,  // Dia X: Título
+        /\*\*Dia (\d+)\*\*:\s*([^\n]+)\n([\s\S]+?)(?=\n\*\*Dia \d+\*\*:|$)/g  // **Dia X**: Título
+      ];
+      
+      // Tentar cada padrão
+      for (const pattern of dayRegexPatterns) {
+        let match;
+        let matched = false;
+        
+        // Reset the pattern's lastIndex
+        pattern.lastIndex = 0;
+        
+        while ((match = pattern.exec(text)) !== null) {
+          matched = true;
+          const [, dayNumber, titleRaw, activitiesText] = match;
+          
+          // Limpar o título (remover asteriscos extras ou outros caracteres indesejados)
+          const title = titleRaw.replace(/\*/g, '').trim();
+          
+          const day = {
+            day: dayNumber,
+            title: title,
+            morning: '',
+            afternoon: '',
+            night: ''
+          };
 
-        // Extrair atividades por período - corrigindo as regex para o formato real
-        const morningMatch = activitiesText.match(/\*\*Manhã[^:]*:\*\*\s*(.*?)(?=\n\*\*|$)/s);
-        if (morningMatch) {
-          day.morning = morningMatch[1].replace(/\*/g, '').trim();
+          // Extrair períodos usando padrões flexíveis
+          // Manhã pode aparecer como Manhã:, Manhã -, Manhã (8h-12h):, etc.
+          const morningPatterns = [
+            /\*\*Manhã[^:]*:\*\*\s*([\s\S]*?)(?=\n\s*\*\*Tarde|\n\s*\*\*Almoço|\n\s*\*\*Noite|$)/i,
+            /\*\*Manhã[^:]*\*\*\s*(?:-|\(|\n)\s*([\s\S]*?)(?=\n\s*\*\*Tarde|\n\s*\*\*Almoço|\n\s*\*\*Noite|$)/i,
+            /Manhã[^:]*:\s*([\s\S]*?)(?=\n\s*Tarde|\n\s*Almoço|\n\s*Noite|$)/i,
+            /Manhã[^:]*\s*(?:-|\()\s*([\s\S]*?)(?=\n\s*Tarde|\n\s*Almoço|\n\s*Noite|$)/i
+          ];
+
+          const afternoonPatterns = [
+            /\*\*Tarde[^:]*:\*\*\s*([\s\S]*?)(?=\n\s*\*\*Noite|\n\s*\*\*Jantar|$)/i,
+            /\*\*Tarde[^:]*\*\*\s*(?:-|\(|\n)\s*([\s\S]*?)(?=\n\s*\*\*Noite|\n\s*\*\*Jantar|$)/i,
+            /Tarde[^:]*:\s*([\s\S]*?)(?=\n\s*Noite|\n\s*Jantar|$)/i,
+            /Tarde[^:]*\s*(?:-|\()\s*([\s\S]*?)(?=\n\s*Noite|\n\s*Jantar|$)/i
+          ];
+
+          const nightPatterns = [
+            /\*\*Noite[^:]*:\*\*\s*([\s\S]*?)(?=\n\s*\*\*Dia|\n\s*\*\*Observações|$)/i,
+            /\*\*Noite[^:]*\*\*\s*(?:-|\(|\n)\s*([\s\S]*?)(?=\n\s*\*\*Dia|\n\s*\*\*Observações|$)/i,
+            /Noite[^:]*:\s*([\s\S]*?)(?=\n\s*Dia|\n\s*Observações|$)/i,
+            /Noite[^:]*\s*(?:-|\()\s*([\s\S]*?)(?=\n\s*Dia|\n\s*Observações|$)/i
+          ];
+          
+          // Função auxiliar para procurar em vários padrões
+          const findMatch = (patterns, text) => {
+            for (const pattern of patterns) {
+              const match = text.match(pattern);
+              if (match && match[1]) {
+                // Remover asteriscos e limpar o texto
+                return match[1].replace(/\*/g, '').trim();
+              }
+            }
+            return '';
+          };
+          
+          // Encontrar e limpar os textos dos períodos
+          day.morning = findMatch(morningPatterns, activitiesText);
+          day.afternoon = findMatch(afternoonPatterns, activitiesText);
+          day.night = findMatch(nightPatterns, activitiesText);
+          
+          // Processar texto de almoço/jantar caso não encontre tarde/noite explicitamente
+          if (!day.afternoon) {
+            const lunchPatterns = [
+              /\*\*Almoço[^:]*:\*\*\s*([\s\S]*?)(?=\n\s*\*\*Tarde|\n\s*\*\*Noite|$)/i,
+              /Almoço[^:]*:\s*([\s\S]*?)(?=\n\s*Tarde|\n\s*Noite|$)/i
+            ];
+            day.afternoon = findMatch(lunchPatterns, activitiesText);
+          }
+          
+          if (!day.night) {
+            const dinnerPatterns = [
+              /\*\*Jantar[^:]*:\*\*\s*([\s\S]*?)(?=\n\s*\*\*Dia|\n\s*\*\*Observações|$)/i,
+              /Jantar[^:]*:\s*([\s\S]*?)(?=\n\s*Dia|\n\s*Observações|$)/i
+            ];
+            day.night = findMatch(dinnerPatterns, activitiesText);
+          }
+          
+          days.push(day);
         }
         
-        const afternoonMatch = activitiesText.match(/\*\*Tarde[^:]*:\*\*\s*(.*?)(?=\n\*\*|$)/s);
-        if (afternoonMatch) {
-          day.afternoon = afternoonMatch[1].replace(/\*/g, '').trim();
-        }
-        
-        const nightMatch = activitiesText.match(/\*\*Noite[^:]*:\*\*\s*(.*?)(?=\n\*\*|$)/s);
-        if (nightMatch) {
-          day.night = nightMatch[1].replace(/\*/g, '').trim();
-        }
-
-        days.push(day);
+        // Se encontrou dias com este padrão, não continue com os outros padrões
+        if (matched) break;
       }
+      
       return days;
     },
     downloadPDF() {
@@ -131,17 +197,45 @@ export default {
 
       // Detalhes diários
       let yPosition = 45;
+      let pageHeight = doc.internal.pageSize.height;
+      
       this.parsedDays.forEach(day => {
+        // Verificar se há espaço suficiente para o próximo dia
+        if (yPosition > pageHeight - 40) {
+          doc.addPage();
+          yPosition = 20;
+        }
+        
         doc.setFontSize(14);
-        doc.text(`Dia ${day.day}:`, 15, yPosition);
+        doc.text(`Dia ${day.day}: ${day.title}`, 15, yPosition);
         yPosition += 7;
         
         doc.setFontSize(12);
-        doc.text(`Manhã: ${day.morning}`, 20, yPosition);
-        yPosition += 7;
-        doc.text(`Tarde: ${day.afternoon}`, 20, yPosition);
-        yPosition += 7;
-        doc.text(`Noite: ${day.night}`, 20, yPosition);
+        
+        // Função para lidar com textos longos
+        const addText = (label, text) => {
+          if (!text) return;
+          
+          // Calcular quebras de linha para textos longos
+          const splitText = doc.splitTextToSize(text, 170);
+          
+          doc.text(`${label}: `, 20, yPosition);
+          doc.text(splitText, 30, yPosition);
+          
+          // Ajustar posição Y com base no número de linhas
+          yPosition += 7 + (splitText.length - 1) * 5;
+          
+          // Verificar se precisamos adicionar nova página
+          if (yPosition > pageHeight - 20) {
+            doc.addPage();
+            yPosition = 20;
+          }
+        };
+        
+        if (day.morning) addText('Manhã', day.morning);
+        if (day.afternoon) addText('Tarde', day.afternoon);
+        if (day.night) addText('Noite', day.night);
+        
         yPosition += 10;
       });
 
