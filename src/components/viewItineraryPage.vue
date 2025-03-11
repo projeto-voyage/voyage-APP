@@ -37,8 +37,8 @@
 </template>
   
 <script>
-import jsPDF from 'jspdf';
 import axios from 'axios';
+import pdfGenerator from '@/services/pdfGenerator';
 
 export default {
   data() {
@@ -183,63 +183,7 @@ export default {
       return days;
     },
     downloadPDF() {
-      const doc = new jsPDF();
-      
-      // Cabeçalho
-      doc.setFontSize(18);
-      doc.text("Roteiro de Viagem - " + this.itinerary.destination, 15, 15);
-      
-      // Informações Gerais
-      doc.setFontSize(12);
-      doc.text(`Destino: ${this.itinerary.destination}`, 15, 25);
-      doc.text(`Orçamento: R$ ${this.itinerary.budget}`, 15, 30);
-      doc.text(`Duração: ${this.itinerary.duration} dias`, 15, 35);
-
-      // Detalhes diários
-      let yPosition = 45;
-      let pageHeight = doc.internal.pageSize.height;
-      
-      this.parsedDays.forEach(day => {
-        // Verificar se há espaço suficiente para o próximo dia
-        if (yPosition > pageHeight - 40) {
-          doc.addPage();
-          yPosition = 20;
-        }
-        
-        doc.setFontSize(14);
-        doc.text(`Dia ${day.day}: ${day.title}`, 15, yPosition);
-        yPosition += 7;
-        
-        doc.setFontSize(12);
-        
-        // Função para lidar com textos longos
-        const addText = (label, text) => {
-          if (!text) return;
-          
-          // Calcular quebras de linha para textos longos
-          const splitText = doc.splitTextToSize(text, 170);
-          
-          doc.text(`${label}: `, 20, yPosition);
-          doc.text(splitText, 30, yPosition);
-          
-          // Ajustar posição Y com base no número de linhas
-          yPosition += 7 + (splitText.length - 1) * 5;
-          
-          // Verificar se precisamos adicionar nova página
-          if (yPosition > pageHeight - 20) {
-            doc.addPage();
-            yPosition = 20;
-          }
-        };
-        
-        if (day.morning) addText('Manhã', day.morning);
-        if (day.afternoon) addText('Tarde', day.afternoon);
-        if (day.night) addText('Noite', day.night);
-        
-        yPosition += 10;
-      });
-
-      doc.save("roteiro-viagem.pdf");
+      pdfGenerator.generateItineraryPDF(this.itinerary, this.parsedDays);
     }
   }
 }
