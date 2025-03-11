@@ -13,7 +13,7 @@
           </div>
           <div class="info-item">
             <i class="fas fa-clock"></i>
-            <span><strong>Duração:</strong> {{ itinerary.duration }} dias</span>
+            <span><strong>Duração:</strong> {{ itinerary.duration }} {{ itinerary.duration === 1 ? 'dia' : 'dias' }}</span>
           </div>
         </div>
   
@@ -131,7 +131,7 @@ export default {
 
       // Detalhes diários
       let yPosition = 45;
-      this.itinerary.days.forEach(day => {
+      this.parsedDays.forEach(day => {
         doc.setFontSize(14);
         doc.text(`Dia ${day.day}:`, 15, yPosition);
         yPosition += 7;
