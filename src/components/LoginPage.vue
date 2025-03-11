@@ -123,7 +123,7 @@ export default {
         localStorage.setItem('token', response.data.token)
         localStorage.setItem('userData', JSON.stringify(response.data.user))
 
-        this.$router.push('/home')
+        this.$router.push('/itinerary')
       } catch (error) {
         const errorResponse = error.response?.data
         console.error('Erro em login:', errorResponse)
@@ -151,7 +151,7 @@ export default {
       console.log('Redirecionando para recuperação de senha...')
     },
     goToRegister() {
-      console.log('Redirecionando para registro...')
+      this.$router.push('/register')
     },
     loginWithGoogle() {
       console.log('Iniciando login com Google...')
