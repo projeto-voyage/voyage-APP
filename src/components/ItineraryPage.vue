@@ -162,6 +162,7 @@
         return isValid;
       },
       async generateItinerary() {
+        const token = localStorage.getItem('token')
         this.clearMessages();
         
         if (!this.validateForm()) {
@@ -177,7 +178,7 @@
             totalCost: parseInt(this.inputData.budget)
           }, {
             headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`
+              Authorization: `Bearer ${token}`
             }
           });
   

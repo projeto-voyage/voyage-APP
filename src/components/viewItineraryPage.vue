@@ -50,11 +50,18 @@ export default {
         details: '',
         days: []
       },
-      parsedDays: []
+      parsedDays: [],
+      token: null
     }
   },
   mounted() {
-    axios.get('http://localhost:3000/itineraries')
+    this.token = localStorage.getItem('token')
+
+    axios.get('http://localhost:3000/itineraries', {
+      headers: {
+        'Authorization': `Bearer ${this.token}`
+      }
+    })
       .then(response => {
         this.itinerary.destination = response.data.content.destination;
         this.itinerary.budget = response.data.content.totalCost;

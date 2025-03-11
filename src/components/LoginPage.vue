@@ -120,8 +120,7 @@ export default {
         })
         console.log('Login bem-sucedido:', response.data)
         // Salva o token JWT no localStorage
-        localStorage.setItem('token', response.data.token)
-        localStorage.setItem('userData', JSON.stringify(response.data.user))
+        localStorage.setItem('token', response.data.access_token)
 
         this.$router.push('/itinerary')
       } catch (error) {
