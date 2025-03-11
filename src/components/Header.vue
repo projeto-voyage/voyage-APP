@@ -9,13 +9,20 @@
         <a href="#">Contato</a>|
         <a href="#">Sobre Nós</a>
       </nav>
-    <button class="cta-button">Experimente Grátis</button>
+    <button class="cta-button" @click="redirectToLogin">Experimente Grátis</button>
   </header>
 </template>
 
 <script>
 export default {
   name: 'Header',
+  methods: {
+    redirectToLogin() {
+      this.$router.push({
+        path: '/login',
+      });
+    },
+  },
 };
 </script>
 
