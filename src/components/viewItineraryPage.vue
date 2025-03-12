@@ -13,14 +13,14 @@
           </div>
           <div class="info-item">
             <i class="fas fa-clock"></i>
-            <span><strong>Duração:</strong> {{ itinerary.duration }} dias</span>
+            <span><strong>Duração:</strong> {{ itinerary.duration }} {{ itinerary.duration === 1 ? 'dia' : 'dias' }}</span>
           </div>
         </div>
   
         <div class="details-card">
           <div class="days-grid">
-            <div class="day-plan" v-for="(day, index) in itinerary.days" :key="index">
-              <h3>Dia {{ day.day }}</h3>
+            <div class="day-plan" v-for="(day, index) in parsedDays" :key="index">
+              <h3>Dia {{ day.day }}: {{ day.title }}</h3>
               <p><strong>Manhã:</strong> {{ day.morning }}</p>
               <p><strong>Tarde:</strong> {{ day.afternoon }}</p>
               <p><strong>Noite:</strong> {{ day.night }}</p>
@@ -37,69 +37,153 @@
 </template>
   
 <script>
-import jsPDF from 'jspdf';
+import axios from 'axios';
+import pdfGenerator from '@/services/pdfGenerator';
 
 export default {
   data() {
     return {
       itinerary: {
-        destination: "Paris, França",
-        budget: "5000",
-        duration: 5,
-        days: [
-          {
-            day: 1,
-            morning: "Chegada no aeroporto e traslado para o hotel",
-            afternoon: "Visita à Torre Eiffel",
-            night: "Jantar em restaurante típico"
-          },
-          {
-            day: 2,
-            morning: "Visita ao Museu do Louvre",
-            afternoon: "Passeio pelos Jardins de Tuileries",
-            night: "Cruzeiro pelo Rio Sena"
-          },
-          {
-            day: 3,
-            morning: "Visita ao Museu do Louvre",
-            afternoon: "Passeio pelos Jardins de Tuileries",
-            night: "Cruzeiro pelo Rio Sena"
-          },
-        ]
-      }
+        destination: '',
+        budget: '',
+        duration: 0,
+        details: '',
+        days: []
+      },
+      parsedDays: [],
+      token: null
     }
   },
-  methods: {
-    downloadPDF() {
-      const doc = new jsPDF();
-      
-      // Cabeçalho
-      doc.setFontSize(18);
-      doc.text("Roteiro de Viagem - " + this.itinerary.destination, 15, 15);
-      
-      // Informações Gerais
-      doc.setFontSize(12);
-      doc.text(`Destino: ${this.itinerary.destination}`, 15, 25);
-      doc.text(`Orçamento: R$ ${this.itinerary.budget}`, 15, 30);
-      doc.text(`Duração: ${this.itinerary.duration} dias`, 15, 35);
+  computed: {
+    itineraryId() {
+      return this.$route.params.id
+    } 
+  },
+  mounted() {
+    this.token = localStorage.getItem('token')
 
-      // Detalhes diários
-      let yPosition = 45;
-      this.itinerary.days.forEach(day => {
-        doc.setFontSize(14);
-        doc.text(`Dia ${day.day}:`, 15, yPosition);
-        yPosition += 7;
+    axios.get(`http://localhost:3000/itineraries/${this.itineraryId}`, {
+      headers: {
+        'Authorization': `Bearer ${this.token}`
+      }
+    })
+      .then(response => {
+        // console.log(response.data.content);
+        this.itinerary.destination = response.data.content.destination;
+        this.itinerary.budget = response.data.content.totalCost;
+        this.itinerary.duration = response.data.content.totalDays;
         
-        doc.setFontSize(12);
-        doc.text(`Manhã: ${day.morning}`, 20, yPosition);
-        yPosition += 7;
-        doc.text(`Tarde: ${day.afternoon}`, 20, yPosition);
-        yPosition += 7;
-        doc.text(`Noite: ${day.night}`, 20, yPosition);
-        yPosition += 10;
+        // Processar os dias
+        this.parsedDays = this.parseItineraryText(response.data.content.details);
+      })
+      .catch(error => {
+        console.error('Erro ao buscar roteiro:', error);
       });
+  },
+  methods: {
+    parseItineraryText(text) {
+      const days = [];
+      
+      // Extrair informações dos dias com diversos formatos possíveis
+      // 1. Padrão standard com Dia X: Título no formato Markdown ou com asteriscos
+      const dayRegexPatterns = [
+        /\*\*Dia (\d+): ([^*]+)\*\*\s*\n([\s\S]+?)(?=\n\s*\*\*Dia \d+:|$)/g,  // **Dia X: Título**
+        /\n\*\*Dia (\d+):\s*([^*]+)\*\*\s*\n([\s\S]+?)(?=\n\s*\*\*Dia \d+:|$)/g,  // **Dia X: Título**
+        /Dia (\d+):\s*([^\n]+)\n([\s\S]+?)(?=\nDia \d+:|$)/g,  // Dia X: Título
+        /\*\*Dia (\d+)\*\*:\s*([^\n]+)\n([\s\S]+?)(?=\n\*\*Dia \d+\*\*:|$)/g  // **Dia X**: Título
+      ];
+      
+      // Tentar cada padrão
+      for (const pattern of dayRegexPatterns) {
+        let match;
+        let matched = false;
+        
+        // Reset the pattern's lastIndex
+        pattern.lastIndex = 0;
+        
+        while ((match = pattern.exec(text)) !== null) {
+          matched = true;
+          const [, dayNumber, titleRaw, activitiesText] = match;
+          
+          // Limpar o título (remover asteriscos extras ou outros caracteres indesejados)
+          const title = titleRaw.replace(/\*/g, '').trim();
+          
+          const day = {
+            day: dayNumber,
+            title: title,
+            morning: '',
+            afternoon: '',
+            night: ''
+          };
 
-      doc.save("roteiro-viagem.pdf");
+          // Extrair períodos usando padrões flexíveis
+          // Manhã pode aparecer como Manhã:, Manhã -, Manhã (8h-12h):, etc.
+          const morningPatterns = [
+            /\*\*Manhã[^:]*:\*\*\s*([\s\S]*?)(?=\n\s*\*\*Tarde|\n\s*\*\*Almoço|\n\s*\*\*Noite|$)/i,
+            /\*\*Manhã[^:]*\*\*\s*(?:-|\(|\n)\s*([\s\S]*?)(?=\n\s*\*\*Tarde|\n\s*\*\*Almoço|\n\s*\*\*Noite|$)/i,
+            /Manhã[^:]*:\s*([\s\S]*?)(?=\n\s*Tarde|\n\s*Almoço|\n\s*Noite|$)/i,
+            /Manhã[^:]*\s*(?:-|\()\s*([\s\S]*?)(?=\n\s*Tarde|\n\s*Almoço|\n\s*Noite|$)/i
+          ];
+
+          const afternoonPatterns = [
+            /\*\*Tarde[^:]*:\*\*\s*([\s\S]*?)(?=\n\s*\*\*Noite|\n\s*\*\*Jantar|$)/i,
+            /\*\*Tarde[^:]*\*\*\s*(?:-|\(|\n)\s*([\s\S]*?)(?=\n\s*\*\*Noite|\n\s*\*\*Jantar|$)/i,
+            /Tarde[^:]*:\s*([\s\S]*?)(?=\n\s*Noite|\n\s*Jantar|$)/i,
+            /Tarde[^:]*\s*(?:-|\()\s*([\s\S]*?)(?=\n\s*Noite|\n\s*Jantar|$)/i
+          ];
+
+          const nightPatterns = [
+            /\*\*Noite[^:]*:\*\*\s*([\s\S]*?)(?=\n\s*\*\*Dia|\n\s*\*\*Observações|$)/i,
+            /\*\*Noite[^:]*\*\*\s*(?:-|\(|\n)\s*([\s\S]*?)(?=\n\s*\*\*Dia|\n\s*\*\*Observações|$)/i,
+            /Noite[^:]*:\s*([\s\S]*?)(?=\n\s*Dia|\n\s*Observações|$)/i,
+            /Noite[^:]*\s*(?:-|\()\s*([\s\S]*?)(?=\n\s*Dia|\n\s*Observações|$)/i
+          ];
+          
+          // Função auxiliar para procurar em vários padrões
+          const findMatch = (patterns, text) => {
+            for (const pattern of patterns) {
+              const match = text.match(pattern);
+              if (match && match[1]) {
+                // Remover asteriscos e limpar o texto
+                return match[1].replace(/\*/g, '').trim();
+              }
+            }
+            return '';
+          };
+          
+          // Encontrar e limpar os textos dos períodos
+          day.morning = findMatch(morningPatterns, activitiesText);
+          day.afternoon = findMatch(afternoonPatterns, activitiesText);
+          day.night = findMatch(nightPatterns, activitiesText);
+          
+          // Processar texto de almoço/jantar caso não encontre tarde/noite explicitamente
+          if (!day.afternoon) {
+            const lunchPatterns = [
+              /\*\*Almoço[^:]*:\*\*\s*([\s\S]*?)(?=\n\s*\*\*Tarde|\n\s*\*\*Noite|$)/i,
+              /Almoço[^:]*:\s*([\s\S]*?)(?=\n\s*Tarde|\n\s*Noite|$)/i
+            ];
+            day.afternoon = findMatch(lunchPatterns, activitiesText);
+          }
+          
+          if (!day.night) {
+            const dinnerPatterns = [
+              /\*\*Jantar[^:]*:\*\*\s*([\s\S]*?)(?=\n\s*\*\*Dia|\n\s*\*\*Observações|$)/i,
+              /Jantar[^:]*:\s*([\s\S]*?)(?=\n\s*Dia|\n\s*Observações|$)/i
+            ];
+            day.night = findMatch(dinnerPatterns, activitiesText);
+          }
+          
+          days.push(day);
+        }
+        
+        // Se encontrou dias com este padrão, não continue com os outros padrões
+        if (matched) break;
+      }
+      
+      return days;
+    },
+    downloadPDF() {
+      pdfGenerator.generateItineraryPDF(this.itinerary, this.parsedDays);
     }
   }
 }

@@ -118,14 +118,13 @@ export default {
           email: this.email,
           password: this.password,
         })
+        console.log('Login bem-sucedido:', response.data)
         // Salva o token JWT no localStorage
-        localStorage.setItem('token', response.data.token)
-        localStorage.setItem('userData', JSON.stringify(response.data.user))
+        localStorage.setItem('token', response.data.access_token)
 
-        // Configura o token como padrão para todas as requisições futuras
-        axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`
-
-        this.$router.push('/home')
+        this.$router.push({
+          path: '/itinerary',
+        });
       } catch (error) {
         const errorResponse = error.response?.data
         console.error('Erro em login:', errorResponse)
@@ -153,7 +152,9 @@ export default {
       console.log('Redirecionando para recuperação de senha...')
     },
     goToRegister() {
-      this.$router.push('/register')
+      this.$router.push({
+        path: '/register',
+      })
     },
     loginWithGoogle() {
       console.log('Iniciando login com Google...')

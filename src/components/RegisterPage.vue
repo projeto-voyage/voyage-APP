@@ -138,7 +138,7 @@ export default {
       this.isLoading = true
 
       try {
-        const response = await createUser({
+        await createUser({
           name: this.name,
           email: this.email,
           password: this.password,
@@ -148,7 +148,9 @@ export default {
         this.showAlert = true;
 
         setTimeout(() => {
-          this.$router.push('/login');
+          this.$router.push({
+            path: '/login',
+          });
         }, 5000);
       } catch (error) {
         console.error('Erro ao registrar:', error);
@@ -156,7 +158,9 @@ export default {
       }
     },
     goToLogin() {
-      this.$router.push('/login');
+      this.$router.push({
+        path: '/login',
+      });
     },
     loginWithGoogle() {
       console.log('Iniciando login com Google...');

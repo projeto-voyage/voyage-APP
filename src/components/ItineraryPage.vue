@@ -162,6 +162,7 @@
         return isValid;
       },
       async generateItinerary() {
+        const token = localStorage.getItem('token')
         this.clearMessages();
         
         if (!this.validateForm()) {
@@ -175,11 +176,18 @@
             destination: this.inputData.destination,
             totalDays: parseInt(this.inputData.duration),
             totalCost: parseInt(this.inputData.budget)
+          }, {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
           });
-  
-          this.successMessage = 'Roteiro gerado com sucesso!';
+
           if (response.data) {
-            console.log('Roteiro gerado:', response.data);
+            this.successMessage = 'Roteiro gerado com sucesso!';
+            this.$router.push({
+              path: `/itinerary/${response.data.id}`,
+            });
+            // console.log('Roteiro gerado:', response.data);
           }
         } catch (error) {
           this.errorMessage = 'Erro ao gerar roteiro. Por favor, tente novamente.';
